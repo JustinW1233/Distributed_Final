@@ -1,0 +1,4 @@
+to start this app run these commands in the terminal (ctrl + ~)
+1. npm init
+2. npm i express-generator
+3. npm i mongo
