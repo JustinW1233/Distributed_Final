@@ -9,7 +9,7 @@ var app = express();
 initialize({
     app,
     apiDoc: require('./api/api-doc'),
-    paths: require('./api/paths'),
+    paths: './api/paths',
 })
 
 app.use(logger('dev'));
@@ -21,6 +21,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // app.use('/', indexRouter);
 // app.use('/users', usersRouter);
 
-app.listen(69420)
+app.listen(6969)
 
 module.exports = app;

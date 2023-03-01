@@ -28,7 +28,20 @@ module.exports = function(){
                         }
                     }
                 }
-            }
+            },
+            // 404: {
+            //     description: "resource not found",
+            //     content: {
+            //         "application/json": {
+            //             schema: {
+            //                 type: "object",
+            //                 items: {
+            //                     $ref: '#/components/schemas/account'
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
         }
     }
 }
