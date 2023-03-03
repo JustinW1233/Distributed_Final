@@ -1,8 +1,7 @@
 module.exports = function(){
     var operations = {
         GET,
-        // PATCH,
-        // DELETE,
+        POST,
     }
 
     async function GET(req,res,next){
@@ -31,4 +30,32 @@ module.exports = function(){
             }
         }
     }
+
+    async function POST(req, res, next){
+        var email = req.body.email;
+        var password = req.body.password;
+        var posts = [];
+    }
+
+    POST.apiDoc = {
+        summary: "create an account",
+        description: "creates an account and adds it to the account collection",
+        operationId: "post-accounts",
+        responses: {
+            200: {
+                description: "OK",
+                content: {
+                    "application/json": {
+                        schema: {
+                            type: "object",
+                            items: {
+                                $ref: '#/components/schemas/account'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return operations;
 }

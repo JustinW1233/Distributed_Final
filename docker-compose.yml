@@ -1,0 +1,82 @@
+services:
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:7.3.0
+  #   container_name: zookeeper
+  #   environment:
+  #     - ZOOKEEPER_CLIENT_PORT=2181
+  #     - ZOOKEEPER_TICK_TIME=2000
+  #   networks:
+  #     - mongodb
+  # broker:
+  #   image: confluentinc/cp-kafka:7.3.0
+  #   container_name: broker
+  #   ports:
+  #     - '9092:9092'
+  #   depends_on:
+  #     - zookeeper
+  #   environment:
+  #     - KAFKA_BROKER_ID=1
+  #     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+  #     - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+  #     - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+  #     - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+  #     - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+  #     - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+  #   networks:
+  #     - mongodb
+  apiservice1:
+    build: ./ApiService
+    ports:
+    - '420:6969'
+    networks:
+      - mongodb
+    # environment:
+    #   - PASSWORD_TOPIC=accounts
+    #   - KAFKA_BROKER_SERVER=broker:29092
+    # depends_on:
+    #   - broker
+  apiservice2:
+    build: ./ApiService
+    ports:
+    - '421:6969'
+    depends_on:
+      - apiservice1
+    networks:
+      - mongodb
+    # environment:
+    #   - OFFER_TOPIC=offers
+    #   - PASSWORD_TOPIC=password
+    #   - KAFKA_BROKER_SERVER=broker:29092
+  # nginx:
+  #   build: './nginx'
+  #   ports:
+  #   - '422:80'
+  #   depends_on:
+  #     - videogameapi1
+  #     - videogameapi2
+  #   networks:
+  #     - mongodb
+  mongodb:
+    image: mongo:latest
+    container_name: distributed-mongodb-final
+    ports: 
+    - '2717:27017'
+    networks:
+    - mongodb
+  # email:
+  #   build: './email'
+  #   depends_on:
+  #     - videogameapi1
+  #     - broker
+  #     - zookeeper
+  #   environment:
+  #     - OFFER_TOPIC=offers
+  #     - PASSWORD_TOPIC=password
+  #     - KAFKA_BROKER_SERVER=broker:29092
+  #   networks:
+  #     - mongodb
+
+
+networks:
+  mongodb: 
+    name: "mongodb"

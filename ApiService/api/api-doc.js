@@ -63,8 +63,8 @@ const apiDoc = {
                     }
                 }
             },
-            }
         }
     }
+}
 
 module.exports = apiDoc;
