@@ -58,7 +58,7 @@ services:
   #     - mongodb
   mongodb:
     image: mongo:latest
-    container_name: distributed-mongodb-final
+    container_name: distributedmongodbfinal
     ports: 
     - '2717:27017'
     networks:

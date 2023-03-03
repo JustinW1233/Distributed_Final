@@ -1,3 +1,5 @@
+const database = require('../../mongodb');
+
 module.exports = function(){
     var operations = {
         GET,
@@ -5,8 +7,17 @@ module.exports = function(){
     }
 
     async function GET(req,res,next){
+
+        console.log('GET')
+
+        const db = await database.getDB;
+        console.log('DB Collection')
+        console.log(db.listCollections());
+        var collection = db.collection('accounts');
+        var accounts = await collection.find({}).toArray() 
+
         return res.status(200).json({
-            email: "poop@poop.com",
+            email: "shitter@poop.com",
         })
     }
 
