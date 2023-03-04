@@ -27,7 +27,7 @@ services:
   apiservice1:
     build: ./ApiService
     ports:
-    - '420:6969'
+    - '421:6969'
     networks:
       - mongodb
     # environment:
@@ -38,7 +38,7 @@ services:
   apiservice2:
     build: ./ApiService
     ports:
-    - '421:6969'
+    - '422:6969'
     depends_on:
       - apiservice1
     networks:
@@ -47,15 +47,15 @@ services:
     #   - OFFER_TOPIC=offers
     #   - PASSWORD_TOPIC=password
     #   - KAFKA_BROKER_SERVER=broker:29092
-  # nginx:
-  #   build: './nginx'
-  #   ports:
-  #   - '422:80'
-  #   depends_on:
-  #     - videogameapi1
-  #     - videogameapi2
-  #   networks:
-  #     - mongodb
+  nginx:
+    build: './nginx'
+    ports:
+    - '420:80'
+    depends_on:
+      - apiservice1
+      - apiservice2
+    networks:
+      - mongodb
   mongodb:
     image: mongo:latest
     container_name: distributedmongodbfinal

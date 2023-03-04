@@ -7,17 +7,17 @@ module.exports = function(){
     }
 
     async function GET(req,res,next){
-        console.log('~~~~~~~GET ALL ACCOUNT HIT~~~~~~~');
+        console.log('~~~~~~~GET ALL POSTS HIT~~~~~~~');
         const db = await database.getDB;
-        var collection = db.collection('accounts');
-        var accounts = await collection.find({}).toArray() 
-        return res.status(200).json({accounts})
+        var collection = db.collection('posts');
+        var posts = await collection.find({}).toArray() 
+        return res.status(200).json({posts})
     }
 
     GET.apiDoc = {
-        summary: "return/get all accounts",
-        description: "return/get all accounts from the account collection",
-        operationId: "get-accounts",
+        summary: "return/get all posts",
+        description: "return/get all posts from the post collection",
+        operationId: "get-posts",
         responses: {
             200: {
                 description: "OK",
@@ -26,7 +26,7 @@ module.exports = function(){
                         schema: {
                             type: "array",
                             items: {
-                                $ref: '#/components/schemas/account'
+                                $ref: '#/components/schemas/post'
                             }
                         }
                     }
@@ -36,22 +36,20 @@ module.exports = function(){
     }
 
     async function POST(req, res, next){
-        var email = req.body.email;
-        var password = req.body.password;
-        var posts = [];
-        
-        //Gets Id for a new account by getting a count of all the entries in in the account collection
-        const db = await database.getDB;
-        var collection = db.collection('accounts');
-        var accounts = await collection.find({}).toArray();
+        var message = req.body.message;
 
-        var id = accounts.length + 1
-        var newAccount = {id: id.toString(), email: email, password: password, posts: posts};
+        //Gets Id for a new post by getting a count of all the entries in in the posts collection
+        const db = await database.getDB;
+        var collection = db.collection('posts');
+        var posts = await collection.find({}).toArray();
+
+        var id = posts.length + 1
+        var newpost = {id: id.toString(), message: message};
 
         try {
             const db = await database.getDB;
-            var collection = db.collection('accounts');
-            var inserted = await collection.insertOne(newAccount)
+            var collection = db.collection('posts');
+            var inserted = await collection.insertOne(newpost)
             return res.status(200).json(inserted); 
         }catch(err) {
             console.error(err);
@@ -60,9 +58,9 @@ module.exports = function(){
     }
 
     POST.apiDoc = {
-        summary: "create an account",
-        description: "creates an account and adds it to the account collection",
-        operationId: "post-accounts",
+        summary: "create an post",
+        description: "creates an post and adds it to the post collection",
+        operationId: "post-posts",
         responses: {
             200: {
                 description: "OK",
@@ -71,7 +69,7 @@ module.exports = function(){
                         schema: {
                             type: "object",
                             items: {
-                                $ref: '#/components/schemas/account'
+                                $ref: '#/components/schemas/post'
                             }
                         }
                     }
