@@ -37,14 +37,19 @@ module.exports = function(){
 
     async function POST(req, res, next){
         var message = req.body.message;
+        var accountId = req.body.accountId;
 
         //Gets Id for a new post by getting a count of all the entries in in the posts collection
         const db = await database.getDB;
         var collection = db.collection('posts');
         var posts = await collection.find({}).toArray();
 
+        var account = db.collection('accounts').findOne({id: accountId});
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~ACCOUNT~~~~~~~~~~~~~~~~~~~~~~~~~")
+        console.log(account)
+
         var id = posts.length + 1
-        var newpost = {id: id.toString(), message: message};
+        var newpost = {id: id.toString(), message: message, accountId: accountId};
 
         try {
             const db = await database.getDB;

@@ -75,6 +75,23 @@ services:
   #     - KAFKA_BROKER_SERVER=broker:29092
   #   networks:
   #     - mongodb
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - '9090:9090'
+    depends_on:
+      # - email
+      - apiservice1
+      - apiservice2
+      # - broker
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    networks:
+      - mongodb
+
+volumes:
+  prometheus-data: 
 
 
 networks:

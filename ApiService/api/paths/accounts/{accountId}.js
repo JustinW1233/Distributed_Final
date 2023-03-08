@@ -3,8 +3,8 @@ const database = require('../../mongodb');
 module.exports = function(){
     var operations = {
         GET,
-        // PATCH,
-        // DELETE,
+        PATCH,
+        DELETE,
     }
 
     async function GET(req,res,next){
@@ -54,5 +54,84 @@ module.exports = function(){
             // }
         }
     }
+
+    async function PATCH(req, res, next) {
+        //await producer.connect();
+        try {
+            const db = await database.getDB;
+            var collection = db.collection('accounts');
+            await collection.updateOne({id: req.params.accountId}, {$set:{password: req.body.password}})
+
+            var updatedAccount = await collection.find({id: req.params.accountId}).toArray();
+
+            // producer.send({
+            //     topic: topic,
+            //     messages: [
+            //         {key: "password-change", value: JSON.stringify(updatedUserEmail)},
+            //     ]
+            // })
+
+            return res.status(200).json(updatedAccount);
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json(err);
+        }
+    }
+
+    PATCH.apiDoc = {
+        summary: "update a existing account via accountId",
+        description: "update a account from the account collection",
+        operationId: "patch-account",
+        responses: {
+            200: {
+                description: "OK",
+                content: {
+                    "application/json": {
+                        schema: {
+                            type: "object",
+                            items: {
+                                $ref: '#/components/schemas/account'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    async function DELETE(req,res,next){
+        try {
+            const db = await database.getDB;
+            var collection = db.collection('accounts');
+            var deleted = await collection.deleteMany({id: req.params.accountId});
+            return res.status(200).json(deleted); 
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json(err);
+        }
+    }
+
+    DELETE.apiDoc = {
+        summary: "delete one account via accountId",
+        description: "delete an account from the account collection",
+        operationId: "delete-account",
+        responses: {
+            200: {
+                description: "OK",
+                content: {
+                    "application/json": {
+                        schema: {
+                            type: "object",
+                            items: {
+                                $ref: '#/components/schemas/account'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     return operations;
 }

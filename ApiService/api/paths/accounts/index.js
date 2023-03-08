@@ -43,6 +43,7 @@ module.exports = function(){
         //Gets Id for a new account by getting a count of all the entries in in the account collection
         const db = await database.getDB;
         var collection = db.collection('accounts');
+
         var accounts = await collection.find({}).toArray();
 
         var id = accounts.length + 1
