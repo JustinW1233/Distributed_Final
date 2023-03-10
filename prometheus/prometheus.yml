@@ -10,10 +10,11 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-        - 'prometheus:9090'
-        - 'apiservice1:6969'
-        - 'apiservice2:6969'
-        - 'apiservice299999:6969'
+        - 'promwhore:9090'
+        - 'api1:6969'
+        - 'api2:6969'
+        - 'nginx:80'
+        - 'distributedmongodbfinal:2717'
 
 remote_write:
   - url: https://prometheus-us-central1.grafana.net/api/prom/push

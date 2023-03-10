@@ -1,6 +1,10 @@
 const database = require('../../mongodb');
+const kafka = require('../../streams/accountskafka.js');
 
 module.exports = function(){
+    const topic = process.env.ACCOUNTS_TOPIC;
+    const producer = kafka.producer('account-producer');
+
     var operations = {
         GET,
         PATCH,
@@ -56,22 +60,21 @@ module.exports = function(){
     }
 
     async function PATCH(req, res, next) {
-        //await producer.connect();
+        console.log('~~~~~~~PATCH ACCOUNT HIT~~~~~~~');
         try {
-            const db = await database.getDB;
-            var collection = db.collection('accounts');
-            await collection.updateOne({id: req.params.accountId}, {$set:{password: req.body.password}})
+            var idToUpdate = req.params.accountId
+            var newPassword = req.body.password
+            var jsonObj = {id: idToUpdate, password: newPassword}
 
-            var updatedAccount = await collection.find({id: req.params.accountId}).toArray();
+            await producer.connect();
+            producer.send({
+                topic: topic,
+                messages: [
+                    {key: "account-patch", value: JSON.stringify(jsonObj)},
+                ]
+            })
 
-            // producer.send({
-            //     topic: topic,
-            //     messages: [
-            //         {key: "password-change", value: JSON.stringify(updatedUserEmail)},
-            //     ]
-            // })
-
-            return res.status(200).json(updatedAccount);
+            return res.status(200).json(jsonObj);
         } catch (err) {
             console.error(err);
             return res.status(500).json(err);
@@ -100,11 +103,16 @@ module.exports = function(){
     }
 
     async function DELETE(req,res,next){
+        console.log('~~~~~~~DELETE ACCOUNT HIT~~~~~~~');
         try {
-            const db = await database.getDB;
-            var collection = db.collection('accounts');
-            var deleted = await collection.deleteMany({id: req.params.accountId});
-            return res.status(200).json(deleted); 
+            await producer.connect();
+            producer.send({
+                topic: topic,
+                messages: [
+                    {key: "account-delete", value: req.params.accountId},
+                ]
+            })
+            return res.status(200).json(req.params.accountId); 
         } catch (err) {
             console.error(err);
             return res.status(500).json(err);

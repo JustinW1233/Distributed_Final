@@ -1,6 +1,10 @@
 const database = require('../../mongodb');
+const kafka = require('../../streams/accountskafka.js');
 
 module.exports = function(){
+    const topic = process.env.ACCOUNTS_TOPIC;
+    const producer = kafka.producer('account-producer');
+
     var operations = {
         GET,
         POST,
@@ -36,33 +40,29 @@ module.exports = function(){
     }
 
     async function POST(req, res, next){
-        var email = req.body.email;
-        var password = req.body.password;
-        var posts = [];
-        
-        //Gets Id for a new account by getting a count of all the entries in in the account collection
-        const db = await database.getDB;
-        var collection = db.collection('accounts');
-
-        var accounts = await collection.find({}).toArray();
-
-        var id = accounts.length + 1
-        var newAccount = {id: id.toString(), email: email, password: password, posts: posts};
-
         try {
-            const db = await database.getDB;
-            var collection = db.collection('accounts');
-            var inserted = await collection.insertOne(newAccount)
-            return res.status(200).json(inserted); 
+            var email = req.body.email;
+            var password = req.body.password;
+            var posts = [];
+            var newAccount = {email: email, password: password, posts: posts}; 
+
+            await producer.connect()
+            producer.send({
+                topic: topic,
+                messages: [
+                    {key: "account-post", value: JSON.stringify(newAccount)},
+                ]
+            })
+            return res.status(200).json(newAccount); 
         }catch(err) {
             console.error(err);
             return res.status(500).json(err);
-        }
+        }        
     }
 
     POST.apiDoc = {
         summary: "create an account",
-        description: "creates an account and adds it to the account collection",
+        description: "creates an account by send the data down the kafka stream and adds it to the account collection",
         operationId: "post-accounts",
         responses: {
             200: {

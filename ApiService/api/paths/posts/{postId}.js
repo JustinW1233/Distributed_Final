@@ -1,6 +1,10 @@
+const { json } = require('express');
 const database = require('../../mongodb');
+const kafka = require('../../streams/postskafka.js');
 
 module.exports = function(){
+    const topic = process.env.POSTS_TOPIC;
+    const producer = kafka.producer('posts-producer');
     var operations = {
         GET,
         PATCH,
@@ -56,22 +60,20 @@ module.exports = function(){
     }
 
     async function PATCH(req, res, next) {
-        //await producer.connect();
+        console.log("~~~~~~~PATCH POST BY ID HIT~~~~~~~~~")
+        await producer.connect();
         try {
-            const db = await database.getDB;
-            var collection = db.collection('posts');
-            await collection.updateOne({id: req.params.postId}, {$set:{message: req.body.message}})
+            var postId = req.params.postId;
+            var message = req.body.message;
+            var jsonObj = {id: postId, message: message}
+            producer.send({
+                topic: topic,
+                messages: [
+                    {key: "post-patch", value: JSON.stringify(jsonObj)},
+                ]
+            })
 
-            var updatedPost = await collection.find({id: req.params.postId}).toArray();
-
-            // producer.send({
-            //     topic: topic,
-            //     messages: [
-            //         {key: "password-change", value: JSON.stringify(updatedUserEmail)},
-            //     ]
-            // })
-
-            return res.status(200).json(updatedPost);
+            return res.status(200).json(jsonObj);
         } catch (err) {
             console.error(err);
             return res.status(500).json(err);
@@ -100,11 +102,16 @@ module.exports = function(){
     }
 
     async function DELETE(req,res,next){
+        console.log("~~~~~~~DELETE POST BY ID HIT~~~~~~~~~")
+        await producer.connect();
         try {
-            const db = await database.getDB;
-            var collection = db.collection('posts');
-            var deleted = await collection.deleteMany({id: req.params.postId});
-            return res.status(200).json(deleted); 
+            producer.send({
+                topic: topic,
+                messages: [
+                    {key: "post-delete", value: JSON.stringify(req.params.postId)},
+                ]
+            })
+            return res.status(200).json(req.params.postId); 
         } catch (err) {
             console.error(err);
             return res.status(500).json(err);

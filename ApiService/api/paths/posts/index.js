@@ -1,6 +1,9 @@
 const database = require('../../mongodb');
+const kafka = require('../../streams/postskafka.js');
 
 module.exports = function(){
+    const topic = process.env.POSTS_TOPIC;
+    const producer = kafka.producer('posts-producer');
     var operations = {
         GET,
         POST,
@@ -36,26 +39,20 @@ module.exports = function(){
     }
 
     async function POST(req, res, next){
-        var message = req.body.message;
-        var accountId = req.body.accountId;
-
-        //Gets Id for a new post by getting a count of all the entries in in the posts collection
-        const db = await database.getDB;
-        var collection = db.collection('posts');
-        var posts = await collection.find({}).toArray();
-
-        var account = db.collection('accounts').findOne({id: accountId});
-        console.log("~~~~~~~~~~~~~~~~~~~~~~~ACCOUNT~~~~~~~~~~~~~~~~~~~~~~~~~")
-        console.log(account)
-
-        var id = posts.length + 1
-        var newpost = {id: id.toString(), message: message, accountId: accountId};
-
+        console.log('~~~~~~~CREATE POSTS HIT~~~~~~~');
         try {
-            const db = await database.getDB;
-            var collection = db.collection('posts');
-            var inserted = await collection.insertOne(newpost)
-            return res.status(200).json(inserted); 
+            var message = req.body.message;
+            var accountId = req.body.accountId;
+            var newPost = {message: message, accountId: accountId}
+            
+            await producer.connect()
+            producer.send({
+                topic: topic,
+                messages: [
+                    {key: "post-post", value: JSON.stringify(newPost)},
+                ]
+            })
+            return res.status(200).json(newPost); 
         }catch(err) {
             console.error(err);
             return res.status(500).json(err);
