@@ -10,7 +10,7 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-        - 'promwhore:9090'
+        - 'prometheus:9090'
         - 'api1:6969'
         - 'api2:6969'
         - 'nginx:80'
